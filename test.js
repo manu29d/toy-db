@@ -11,6 +11,6 @@ const query = dbInstance.select('*').from(table).where().orderBy('id', 'desc');
 
 console.log(query.data);
 
-const deleteQuery = dbInstance.deleteRows().from(table);
+const deleteQuery = dbInstance.deleteRows().from(table).where({ id: 1 });
 
 console.log(deleteQuery);
