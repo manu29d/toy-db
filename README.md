@@ -9,4 +9,4 @@ Just include the `index.js` file to your project. Might be a good idea to rename
 
 Make sure you `import` or `require` properly.
 
-See [`test.js`](./blobl/master/test.js) for more usage information.
+See [`test.js`](./test.js) for more usage information.
