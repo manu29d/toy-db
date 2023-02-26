@@ -18,6 +18,16 @@ class DB {
     return this.#recursiveDeleteRows(selectedRows, key, value);
   }
 
+  #filterByColumns(selectedRows, columns) {
+    return columns[0] === '*' ? selectedRows : selectedRows.map(row => {
+      const selectedRow = {};
+      columns.forEach(column => {
+        selectedRow[column] = row[column];
+      });
+      return selectedRow;
+    });
+  }
+
   insert(row) {
     return {
       into: (table) => {
@@ -33,7 +43,7 @@ class DB {
         if (!this.#tableExists) throw new Error(`No such table: ${table}`);
         let selectedRows = this.data[table];
         return {
-          data: selectedRows,
+          data: this.#filterByColumns(selectedRows, columns),
           where: (conditions = {}) => {
 
             Object.entries(conditions).forEach(([key, value]) => {
@@ -42,20 +52,7 @@ class DB {
               });
             });
 
-            
-            // TODO: [Fix this]
-            // This is idiotic
-            // This should be in the `from` block above
-            // But to cater to the case `select(['name', 'age']).from('users').where({ gender: 'male' })`
-            // I had to put it here.
-            // This in turn means that `select(['name', 'age']).from('users')` does not work as expected.
-            // You would need to do `select(['name', 'age']).from('users').where()` to get desired output.
-            selectedRows = columns[0] === '*' ? selectedRows : selectedRows.map(row => {
-              const selectedRow = {};
-              columns.map(column => {
-                return selectedRow[column] = row[column];
-              });
-            });
+            selectedRows = this.#filterByColumns(selectedRows, columns);
 
             return {
               data: selectedRows,
@@ -66,6 +63,7 @@ class DB {
                     if (a[column] < b[column]) sorting = -1;
                     if (a[column] > b[column]) sorting = 1;
                     if (direction === 'desc') sorting = sorting * -1;
+
                     return sorting;
                   })
                 }
@@ -85,7 +83,7 @@ class DB {
   }
 
   dropTable(tableName) {
-    if (!this.#tableExists(table)) throw new Error(`No such table: ${table}`); 
+    if (!this.#tableExists(table)) throw new Error(`No such table: ${table}`);
     this.tables.splice(this.tables.indexOf(tableName), 1);
     delete this.data[tableName];
   }
@@ -93,7 +91,7 @@ class DB {
   deleteRows() {
     return {
       from: (table) => {
-        if (!this.#tableExists(table)) throw new Error(`No such table: ${table}`); 
+        if (!this.#tableExists(table)) throw new Error(`No such table: ${table}`);
         let selectedRows = this.data[table];
         return {
           where: (conditions = {}) => {
