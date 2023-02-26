@@ -42,6 +42,14 @@ class DB {
               });
             });
 
+            
+            // TODO: [Fix this]
+            // This is idiotic
+            // This should be in the `from` block above
+            // But to cater to the case `select(['name', 'age']).from('users').where({ gender: 'male' })`
+            // I had to put it here.
+            // This in turn means that `select(['name', 'age']).from('users')` does not work as expected.
+            // You would need to do `select(['name', 'age']).from('users').where()` to get desired output.
             selectedRows = columns[0] === '*' ? selectedRows : selectedRows.map(row => {
               const selectedRow = {};
               columns.map(column => {
